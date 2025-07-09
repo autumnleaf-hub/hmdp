@@ -65,7 +65,7 @@ public class UserController {
         // save code
         //session.setAttribute(CommonFields.VERIFICATION_CODE, code);
         String redisCodeKey = RedisConstants.LOGIN_CODE_KEY + phone;
-        redisUtil.set(redisCodeKey, code);
+        redisUtil.opsForValue().set(redisCodeKey, code);
         redisUtil.expire(redisCodeKey, RedisConstants.LOGIN_CODE_TTL, RedisConstants.LOGIN_CODE_TTL_TIMEUNIT);
         logger.info("For phone number: {}, the verification code is: {}", phone, code);
         // send code
@@ -88,7 +88,7 @@ public class UserController {
         // 验证码登录
         if (loginForm.getCode() != null) {
             String RedisCodeKey = RedisConstants.LOGIN_CODE_KEY + loginForm.getPhone();
-            String trueCode = redisUtil.get(RedisCodeKey);
+            String trueCode = redisUtil.opsForValue().get(RedisCodeKey);
             if (trueCode == null) return Result.fail("验证码已过期");
             if (!trueCode.equals(loginForm.getCode())) return Result.fail("验证码错误！");
 

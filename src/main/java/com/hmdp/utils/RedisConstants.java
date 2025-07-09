@@ -1,10 +1,17 @@
 package com.hmdp.utils;
 
+import java.util.concurrent.TimeUnit;
+
 public class RedisConstants {
+    // 验证码
     public static final String LOGIN_CODE_KEY = "login:code:";
-    public static final Long LOGIN_CODE_TTL = 2L;
+    public static final Long LOGIN_CODE_TTL = 5L;
+    public static final TimeUnit LOGIN_CODE_TTL_TIMEUNIT = TimeUnit.MINUTES;
+
+    // 登录用户
     public static final String LOGIN_USER_KEY = "login:token:";
-    public static final Long LOGIN_USER_TTL = 36000L;
+    public static final Long LOGIN_USER_TTL = 7L;
+    public static final TimeUnit LOGIN_USER_TTL_TIMEUNIT = TimeUnit.DAYS;
 
     public static final Long CACHE_NULL_TTL = 2L;
 

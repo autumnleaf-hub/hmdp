@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @author fzy
  * @version 1.0
  * 创建时间：2025-05-11 17:21
+ * 用于从请求头中获取JWT令牌，解析令牌，获取用户信息，并将用户信息存储到ThreadLocal中，
  */
 @Component
 @Slf4j

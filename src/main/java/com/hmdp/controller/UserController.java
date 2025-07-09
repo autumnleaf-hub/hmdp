@@ -52,7 +52,6 @@ public class UserController {
     RedisUtil redisUtil;
 
     /**
-     * AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
      * 发送手机验证码
      */
     @PostMapping("code")

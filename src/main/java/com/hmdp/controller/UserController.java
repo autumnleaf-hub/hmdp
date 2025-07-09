@@ -78,7 +78,7 @@ public class UserController {
      * @param loginForm 登录参数，包含手机号、验证码；或者手机号、密码
      */
     @PostMapping("/login")
-    public Result login(@Valid @RequestBody LoginFormDTO loginForm, HttpSession session) throws JsonProcessingException {
+    public Result login(@Valid @RequestBody LoginFormDTO loginForm, HttpSession session) {
         // TODO 实现登录功能
         // 查看其是否已登录
         if (UserHolder.getUser() != null) {

@@ -3,6 +3,7 @@ package com.hmdp.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  * 封装 StringRedisTemplate，提供更便捷的 Redis 操作方法，包括对象的 JSON 序列化存储。
  */
 @Component
+@Slf4j
 public class RedisUtil extends StringRedisTemplate{
 
     @Resource
@@ -98,9 +100,7 @@ public class RedisUtil extends StringRedisTemplate{
         try {
             return objectMapper.readValue(jsonValue, clazz);
         } catch (JsonProcessingException e) {
-            // 实际项目中应该记录日志或抛出自定义异常
-            // 可以考虑返回null或抛出异常，取决于业务需求
-            System.err.println("Redis getObject 反序列化失败: " + e.getMessage() + " for key: " + key + " and value: " + jsonValue);
+            log.error("Redis getObject 反序列化失败: {} for key: {} and value: {}", e.getMessage(), key, jsonValue);
             return null;
         }
     }
@@ -124,7 +124,7 @@ public class RedisUtil extends StringRedisTemplate{
             // objectMapper.getTypeFactory().constructCollectionType(List.class, elementClazz) 用于构建 List<T> 的类型
             return objectMapper.readValue(jsonValue, objectMapper.getTypeFactory().constructCollectionType(List.class, elementClazz));
         } catch (JsonProcessingException e) {
-            System.err.println("Redis getList 反序列化失败: " + e.getMessage() + " for key: " + key + " and value: " + jsonValue);
+            log.error("Redis getList 反序列化失败: {} for key: {} and value: {}", e.getMessage(), key, jsonValue);
             return null; // 或者 Collections.emptyList();
         }
     }

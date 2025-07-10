@@ -11,14 +11,7 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 
-/**
- * <p>
- * 前端控制器
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
+
 @RestController
 @RequestMapping("/shop")
 public class ShopController {
@@ -27,7 +20,7 @@ public class ShopController {
     public IShopService shopService;
 
     /**
-     * 根据id查询商铺信息
+     *
      * @param id 商铺id
      * @return 商铺详情数据
      */

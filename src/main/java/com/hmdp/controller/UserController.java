@@ -26,14 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.concurrent.TimeUnit;
 
 
-/**
- * <p>
- * 前端控制器
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
+
 @Slf4j
 @RestController
 @RequestMapping("/user")
@@ -65,7 +58,7 @@ public class UserController {
         // save code
         //session.setAttribute(CommonFields.VERIFICATION_CODE, code);
         String redisCodeKey = RedisConstants.LOGIN_CODE_KEY + phone;
-        redisUtil.opsForValue().set(redisCodeKey, code);
+        redisUtil.set(redisCodeKey, code);
         redisUtil.expire(redisCodeKey, RedisConstants.LOGIN_CODE_TTL, RedisConstants.LOGIN_CODE_TTL_TIMEUNIT);
         logger.info("For phone number: {}, the verification code is: {}", phone, code);
         // send code
@@ -88,7 +81,7 @@ public class UserController {
         // 验证码登录
         if (loginForm.getCode() != null) {
             String RedisCodeKey = RedisConstants.LOGIN_CODE_KEY + loginForm.getPhone();
-            String trueCode = redisUtil.opsForValue().get(RedisCodeKey);
+            String trueCode = redisUtil.get(RedisCodeKey);
             if (trueCode == null) return Result.fail("验证码已过期");
             if (!trueCode.equals(loginForm.getCode())) return Result.fail("验证码错误！");
 

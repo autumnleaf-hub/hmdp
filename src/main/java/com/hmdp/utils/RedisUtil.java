@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,7 +19,10 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Slf4j
-public class RedisUtil extends StringRedisTemplate{
+public class RedisUtil {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private ObjectMapper objectMapper; // 用于 JSON 序列化和反序列化
@@ -40,7 +41,7 @@ public class RedisUtil extends StringRedisTemplate{
         }
         try {
             String jsonValue = objectMapper.writeValueAsString(value);
-            super.opsForValue().set(key, jsonValue);
+            stringRedisTemplate.opsForValue().set(key, jsonValue);
         } catch (JsonProcessingException e) {
             // 实际项目中应该记录日志或抛出自定义异常
             throw new RuntimeException("Redis setObject 序列化失败: " + e.getMessage(), e);
@@ -73,9 +74,9 @@ public class RedisUtil extends StringRedisTemplate{
         try {
             String jsonValue = objectMapper.writeValueAsString(value);
             if (timeout > 0) {
-                super.opsForValue().set(key, jsonValue, timeout, unit);
+                stringRedisTemplate.opsForValue().set(key, jsonValue, timeout, unit);
             } else {
-                super.opsForValue().set(key, jsonValue);
+                stringRedisTemplate.opsForValue().set(key, jsonValue);
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Redis setObjectWithExpire 序列化失败: " + e.getMessage(), e);
@@ -93,7 +94,7 @@ public class RedisUtil extends StringRedisTemplate{
         if (key == null || clazz == null) {
             return null;
         }
-        String jsonValue = super.opsForValue().get(key);
+        String jsonValue = stringRedisTemplate.opsForValue().get(key);
         if (!StringUtils.hasText(jsonValue)) {
             return null;
         }
@@ -116,7 +117,7 @@ public class RedisUtil extends StringRedisTemplate{
         if (key == null || elementClazz == null) {
             return null;
         }
-        String jsonValue = super.opsForValue().get(key);
+        String jsonValue = stringRedisTemplate.opsForValue().get(key);
         if (!StringUtils.hasText(jsonValue)) {
             return null; // 或者 Collections.emptyList();
         }
@@ -127,5 +128,100 @@ public class RedisUtil extends StringRedisTemplate{
             log.error("Redis getList 反序列化失败: {} for key: {} and value: {}", e.getMessage(), key, jsonValue);
             return null; // 或者 Collections.emptyList();
         }
+    }
+
+    // ------------------- 基础操作方法 -------------------
+
+    /**
+     * 判断key是否存在
+     */
+    public Boolean hasKey(String key) {
+        return stringRedisTemplate.hasKey(key);
+    }
+
+    /**
+     * 删除key
+     */
+    public Boolean delete(String key) {
+        return stringRedisTemplate.delete(key);
+    }
+
+    /**
+     * 批量删除key
+     */
+    public Long delete(Collection<String> keys) {
+        return stringRedisTemplate.delete(keys);
+    }
+
+    /**
+     * 设置过期时间
+     */
+    public Boolean expire(String key, long timeout, TimeUnit unit) {
+        return stringRedisTemplate.expire(key, timeout, unit);
+    }
+
+    /**
+     * 获取过期时间
+     */
+    public Long getExpire(String key) {
+        return stringRedisTemplate.getExpire(key);
+    }
+
+    /**
+     * 获取所有匹配的key
+     */
+    public Set<String> keys(String pattern) {
+        return stringRedisTemplate.keys(pattern);
+    }
+
+    // ------------------- String 类型操作 -------------------
+
+    /**
+     * 普通缓存获取
+     */
+    public String get(String key) {
+        return stringRedisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 普通缓存放入
+     */
+    public void set(String key, String value) {
+        stringRedisTemplate.opsForValue().set(key, value);
+    }
+
+    /**
+     * 普通缓存放入并设置时间
+     */
+    public void set(String key, String value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    /**
+     * 递增
+     */
+    public Long increment(String key) {
+        return stringRedisTemplate.opsForValue().increment(key);
+    }
+
+    /**
+     * 递增指定值
+     */
+    public Long increment(String key, long delta) {
+        return stringRedisTemplate.opsForValue().increment(key, delta);
+    }
+
+    /**
+     * 递减
+     */
+    public Long decrement(String key) {
+        return stringRedisTemplate.opsForValue().decrement(key);
+    }
+
+    /**
+     * 递减指定值
+     */
+    public Long decrement(String key, long delta) {
+        return stringRedisTemplate.opsForValue().decrement(key, delta);
     }
 }

@@ -1,8 +1,10 @@
 package com.hmdp.config;
 
+
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -25,11 +27,19 @@ import java.util.List;
 //@ConfigurationProperties(prefix = "spring.redisson") // 属性前缀
 public class RedissonConfig {
 
+
     // Redisson 模式：single, cluster, sentinel, master_slave
     private String mode = "single"; // 默认为单机模式
 
     // Redis 服务器地址。单机模式格式：redis://127.0.0.1:6379；集群/哨兵/主从模式格式：redis://host1:port1,redis://host2:port2
-    private String address = "redis://127.0.0.1:6379";
+    @Value("${spring.data.redis.host:127.0.0.1}")
+    private String host;
+
+    @Value("${spring.data.redis.port:6379}")
+    private String port;
+
+    // Redis 服务器地址。单机模式格式：redis://127.0.0.1:6379；集群/哨兵/主从模式格式：redis://host1:port1,redis://host2:port2
+    private String address;
 
     // Redis 密码 (可选)
     private String password;
@@ -57,6 +67,7 @@ public class RedissonConfig {
 
     @Bean(destroyMethod = "shutdown") // 容器销毁时自动关闭 RedissonClient
     public RedissonClient redissonClient() {
+        this.address = "redis://" + host + ":" + port;
         Config config = new Config();
 
         if (address == null || address.isEmpty()) {

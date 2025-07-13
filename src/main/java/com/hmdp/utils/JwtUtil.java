@@ -1,6 +1,7 @@
 package com.hmdp.utils;
 
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,6 +13,7 @@ import java.util.UUID;
 /**
  * JWT工具类
  */
+@Slf4j
 public class JwtUtil {
     // 下列信息，在使用 springboot 时，可以将他们配置到 application.yml 中，动态注入
     // HTTP 请求中 Jwt 令牌所在的头字段
@@ -128,7 +130,7 @@ public class JwtUtil {
                     .getBody();
         } catch (JwtException e) {
             // 可以根据 e.getClass() 判断是签名错误、过期等
-            throw new IllegalArgumentException("JWT 解析失败: " + e.getMessage());
+            throw new IllegalArgumentException("JWT: " + jwt + ". JWT 解析失败: " + e.getMessage());
         }
     }
 
@@ -169,10 +171,10 @@ public class JwtUtil {
             return expiration == null || !new Date().after(expiration);
         } catch (JwtException e) {
             // 捕获各种 JWT 异常，如签名失败、非法格式等
-            System.out.println("JWT 解析失败: " + e.getMessage());
+            log.error("JWT: " + jwt + ". JWT 解析失败: " + e.getMessage());
             return false;
         } catch (Exception e) {
-            System.out.println("JWT 验证出错: " + e.getMessage());
+            log.error("JWT: " + jwt + ". JWT 验证出错: " + e.getMessage());
             return false;
         }
     }

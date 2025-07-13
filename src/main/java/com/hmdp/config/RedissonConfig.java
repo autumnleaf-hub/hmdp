@@ -38,14 +38,16 @@ public class RedissonConfig {
     @Value("${spring.data.redis.port:6379}")
     private String port;
 
-    // Redis 服务器地址。单机模式格式：redis://127.0.0.1:6379；集群/哨兵/主从模式格式：redis://host1:port1,redis://host2:port2
-    private String address;
-
     // Redis 密码 (可选)
+    @Value("${spring.data.redis.password}")
     private String password;
 
     // 数据库索引 (仅单机模式和主从模式的主节点有效)
-    private int database = 3;
+    @Value("${spring.data.redis.database:0}")
+    private int database;
+
+    // Redis 服务器地址。单机模式格式：redis://127.0.0.1:6379；集群/哨兵/主从模式格式：redis://host1:port1,redis://host2:port2
+    private String address;
 
     // 连接超时时间 (毫秒)
     private int timeout = 3000;
@@ -69,10 +71,6 @@ public class RedissonConfig {
     public RedissonClient redissonClient() {
         this.address = "redis://" + host + ":" + port;
         Config config = new Config();
-
-        if (address == null || address.isEmpty()) {
-            throw new IllegalArgumentException("Redisson address cannot be empty");
-        }
 
         String[] redisAddresses = address.split(",");
         List<String> formattedAddresses = new ArrayList<>();

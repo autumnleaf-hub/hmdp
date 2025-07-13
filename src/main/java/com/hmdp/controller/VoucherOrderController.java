@@ -42,62 +42,7 @@ public class VoucherOrderController {
      */
     @PostMapping("seckill/{id}")
     public Result seckillVoucher(@PathVariable("id") Long voucherId) throws InterruptedException {
-        SeckillVoucher voucher = seckillVoucherService.getById(voucherId);
-        if (voucher == null) {
-            return Result.fail("秒杀券不存在");
-        }
-        if (voucher.getBeginTime().isAfter(LocalDateTime.now())) {
-            return Result.fail("秒杀未开始");
-        }
-        if (voucher.getEndTime().isBefore(LocalDateTime.now())) {
-            return Result.fail("秒杀已结束");
-        }
-        if (voucher.getStock() <= 0) {
-            return Result.fail("库存不足");
-        }
-
-        //一人一单
-        Long userId = UserHolder.getUser().getId();
-        // 使用Redisson分布式锁，防止超卖
-        RLock lock = redissonClient.getLock("lock:userId:" + userId.toString());
-        if (!lock.tryLock(1, TimeUnit.SECONDS)) {
-            // 获取锁失败，可能是其他线程正在处理
-            return Result.fail("请勿重复提交");
-        }
-        try {
-            // 使用事务模板执行数据库操作
-            return transactionTemplate.execute(status -> {
-                Long count = voucherOrderService.lambdaQuery().eq(VoucherOrder::getUserId, userId)
-                        .eq(VoucherOrder::getVoucherId, voucherId)
-                        .count();
-                if (count > 0) {
-                    return Result.fail("您已购买过该秒杀券");
-                }
-
-                // 扣除库存
-                boolean isSuccess = seckillVoucherService.lambdaUpdate()
-                        .setSql("stock = stock - 1") // 直接使用SQL表达式
-                        .eq(SeckillVoucher::getVoucherId, voucherId)
-                        .gt(SeckillVoucher::getStock, 0) // 库存大于0才更新
-                        .update();
-                if (!isSuccess) {
-                    return Result.fail("库存不足或秒杀已结束");
-                }
-
-                // 生成订单
-                VoucherOrder voucherOrder = new VoucherOrder();
-                voucherOrder.setUserId(userId);
-                voucherOrder.setVoucherId(voucherId);
-                long orderId = redissonIdGenerator.generateSnowflakeId("seckill_order");
-                voucherOrder.setId(orderId);
-                voucherOrderService.save(voucherOrder);
-
-                return Result.ok(orderId);
-            });
-        } finally {
-            // 释放锁
-            lock.unlock();
-        }
+        return voucherOrderService.seckillVoucher(voucherId);
     }
 
     /**

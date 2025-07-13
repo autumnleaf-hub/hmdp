@@ -1,5 +1,7 @@
 package com.hmdp;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,16 +23,16 @@ public class JacksonTest {
     @Data
     public static class Person{
         String name;
-        Animal pet;
+        Object pet;
     }
 
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME
-    )
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = Dog.class, name = "dog"),
-            @JsonSubTypes.Type(value = Cat.class, name = "cat")
-    })
+    //@JsonTypeInfo(
+    //        use = JsonTypeInfo.Id.NAME
+    //)
+    //@JsonSubTypes({
+    //        @JsonSubTypes.Type(value = Dog.class, name = "dog"),
+    //        @JsonSubTypes.Type(value = Cat.class, name = "cat")
+    //})
     public static interface Animal{
     }
 
@@ -55,12 +57,18 @@ public class JacksonTest {
         ((Cat) cat).setColor("Black");
 
         person.pet = dog; // 可以切换为 cat 测试
-        String json = objectMapper.writeValueAsString(person);
+        //String json = objectMapper.writeValueAsString(person);
+        //System.out.println("Serialized JSON: " + json);
+        //// 反序列化
+        //Person deserializedPerson = objectMapper.readValue(json, Person.class);
+        //System.out.println("Deserialized Person: " + deserializedPerson);
+        //System.out.println("Pet Type: " + deserializedPerson.getPet().getClass().getSimpleName());
+        String json = JSONUtil.toJsonStr(person);
         System.out.println("Serialized JSON: " + json);
-        // 反序列化
-        Person deserializedPerson = objectMapper.readValue(json, Person.class);
-        System.out.println("Deserialized Person: " + deserializedPerson);
-        System.out.println("Pet Type: " + deserializedPerson.getPet().getClass().getSimpleName());
+        Person bean = JSONUtil.toBean(json, Person.class);
+        System.out.println(bean);
+        Dog pet = JSONUtil.toBean((JSONObject) bean.getPet(), Dog.class);
+        System.out.println(pet);
 
     }
 }

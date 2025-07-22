@@ -50,14 +50,15 @@ public class VoucherOrderController {
      */
     @PostMapping("seckill/async/{id}")
     public Result seckillVoucherAsync(@PathVariable("id") Long voucherId) {
-        return Result.fail("功能正在开发中...");
+        return voucherOrderService.seckillVoucherAsync(voucherId);
     }
 
     /**
      * 查询订单状态
+     * TODO 暂时用作获取订单全部信息接口
      */
     @GetMapping("order/status/{id}")
     public Result queryOrderStatus(@PathVariable("id") Long orderId) {
-        return Result.fail("功能正在开发中...");
+        return Result.ok(voucherOrderService.getById(orderId));
     }
 }

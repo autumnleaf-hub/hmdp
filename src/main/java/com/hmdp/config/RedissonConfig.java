@@ -39,7 +39,7 @@ public class RedissonConfig {
     private String port;
 
     // Redis 密码 (可选)
-    @Value("${spring.data.redis.password}")
+    @Value("${spring.data.redis.password:}")
     private String password;
 
     // 数据库索引 (仅单机模式和主从模式的主节点有效)

@@ -34,8 +34,10 @@ public class RedisConstants {
     // 逻辑删除
     public static final String CACHE_REDIS_DATA_KEY = "cache:redisData:";
 
+    // 秒杀优惠券
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
     public static final String SECKILL_ORDER_KEY = "seckill:order:"; // 新增：秒杀订单KEY
+
     public static final String BLOG_LIKED_KEY = "blog:liked:";
     public static final String FEED_KEY = "feed:";
     public static final String SHOP_GEO_KEY = "shop:geo:";

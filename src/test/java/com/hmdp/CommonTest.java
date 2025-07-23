@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -115,6 +118,20 @@ public class CommonTest {
     public static class Person{
         @Resource
         Person person;
+    }
+
+
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
+
+    @Test
+    void testStream(){
+        List<MapRecord<String, Object, Object>> list = stringRedisTemplate.opsForStream().read(
+                Consumer.from("g1", "c1"),
+                StreamReadOptions.empty().count(1).block(Duration.ofSeconds(2)),
+                StreamOffset.create("stream.orders", ReadOffset.lastConsumed())
+        );
+        System.out.println(list);
     }
 
 

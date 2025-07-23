@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -59,6 +61,8 @@ public class Blog implements Serializable {
     /**
      * 标题
      */
+    @NotBlank(message = "标题不能为空")
+    @Pattern(regexp = "^[\\w\\s]{1,50}$", message = "标题长度必须在1到50个字符之间")
     private String title;
 
     /**

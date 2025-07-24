@@ -38,11 +38,17 @@ public class BlogController {
     }
 
     @PutMapping("/like/{id}")
-    public Result likeBlog(@PathVariable("id") Long id) {
+    public Result likeBlog(@PathVariable("id") Long blogId) {
         // 修改点赞数量
-        blogService.update()
-                .setSql("liked = liked + 1").eq("id", id).update();
-        return Result.ok();
+        //blogService.update()
+        //        .setSql("liked = liked + 1").eq("id", id).update();
+        //return Result.ok();
+        return blogService.likeBlog(blogId);
+    }
+
+    @GetMapping("/likes/{id}")
+    public Result queryBlogLikes(@PathVariable("id") Long blogId) {
+        return blogService.getBlogLikes(blogId);
     }
 
     @GetMapping("/of/me")

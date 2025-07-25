@@ -41,7 +41,10 @@ public class RedisConstants {
     // 博客 用户点赞
     public static final String BLOG_LIKED_KEY = "blog:liked:";
 
+    // 关注
+    public static final String FOLLOW_USER_KEY = "follow:";  // 存储用户和关注用户的关系
 
+    // feed 流。用于缓存接收博文
     public static final String FEED_KEY = "feed:";
     public static final String SHOP_GEO_KEY = "shop:geo:";
     public static final String USER_SIGN_KEY = "sign:";

@@ -1,21 +1,29 @@
 package com.hmdp;
 
+import com.hmdp.entity.Shop;
+import com.hmdp.service.IShopService;
 import com.hmdp.utils.RedisIdWorker;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static com.hmdp.utils.RedisConstants.SHOP_GEO_KEY;
 
 /**
  * @author fzy
@@ -132,6 +140,31 @@ public class CommonTest {
                 StreamOffset.create("stream.orders", ReadOffset.lastConsumed())
         );
         System.out.println(list);
+    }
+
+    @Resource
+    IShopService shopService;
+
+    @Test
+    void loadShopData() {
+        // 获取所有商铺
+        List<Shop> shops = shopService.list();
+        // 按类型给商铺分类
+        Map<Long, List<Shop>> type2Shops = shops.stream().collect(Collectors.groupingBy(Shop::getTypeId));
+        // 遍历每个类型的商铺列表，将其添加到Redis的Geo集合中
+        for (Map.Entry<Long, List<Shop>> entry : type2Shops.entrySet()) {
+            Long typeId = entry.getKey();
+            List<Shop> shopList = entry.getValue();
+            String key = SHOP_GEO_KEY + typeId;
+            List<RedisGeoCommands.GeoLocation<String>> locations = entry.getValue()
+                    .stream()
+                    .map(shop -> new RedisGeoCommands.GeoLocation<>(
+                        shop.getId().toString(),
+                        new Point(shop.getX(), shop.getY())
+                    ))
+                    .toList();
+            stringRedisTemplate.opsForGeo().add(key, locations);
+        }
     }
 
 

@@ -4,6 +4,8 @@ import com.hmdp.entity.Shop;
 import com.hmdp.service.IShopService;
 import com.hmdp.utils.RedisIdWorker;
 import jakarta.annotation.Resource;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -15,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -165,6 +168,36 @@ public class CommonTest {
                     .toList();
             stringRedisTemplate.opsForGeo().add(key, locations);
         }
+    }
+
+    @Test
+    void testHLL() {
+        String key= "hll";
+
+        ArrayList<String> batch = new ArrayList<>();
+        for (int i = 0; i < 1000000; i++) {
+            batch.add(String.valueOf(i));
+
+            if (batch.size() == 10000) {
+                stringRedisTemplate.opsForHyperLogLog().add(key, batch.toArray(new String[0]));
+                batch.clear();
+            }
+        }
+
+        System.out.println("HyperLogLog count: " + stringRedisTemplate.opsForHyperLogLog().size(key));
+    }
+
+    Long time;
+
+    @BeforeEach
+    void init() {
+        time = System.currentTimeMillis();
+    }
+
+    @AfterEach
+    void end() {
+        long endTime = System.currentTimeMillis();
+        System.out.println("测试耗时：" + (endTime - time) + "毫秒");
     }
 
 
